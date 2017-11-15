@@ -31,18 +31,44 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 			s.push(curr);
 			curr = curr->left;
 		} else if (in_array(OPERATORS, *it)) {
-			curr->data = *it;
-			curr->right = std::make_shared<ExprNode>();
-			s.push(curr);
-			curr = curr->right;
+			if (curr->data.empty()) {	// In case it encounters an edge
+				curr->data = *it;
+				curr->right = std::make_shared<ExprNode>();
+				s.push(curr);
+				curr = curr->right;
+			} else {
+				// Two cases: 
+				// * curr is top
+				// * curr is in middle
+				if (s.size() <= 1) {
+					std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
+					temp->left = root;
+					if(!s.empty()) s.pop();
+					temp->right = std::make_shared<ExprNode>();
+					s.push(temp);
+					curr = temp->right;
+					root = temp;
+				} else {
+					std::cout << "entered" << std::endl;
+		/*			std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
+					temp->left = s.top();
+					s.pop();
+					temp->right = std::make_shared<ExprNode>();
+					s.push(temp);
+					curr = temp->right;
+					root = temp;*/
+				}
+			}
 		} else if (in_array(NUMBERS, *it)) {
 			//curr->data = (int)(*it - '0'); // To number
 			curr->data = *it;
 			curr = s.top();
 			s.pop();
 		} else if (*it == ')') {
-			curr = s.top();
-			s.pop();
+			if (!s.empty()) {
+				curr = s.top();
+				s.pop();
+			}
 		} else {
 			std::cerr << "invalid token encountered" << std::endl;
 		}
@@ -87,7 +113,7 @@ template<class T, class E> bool Expr::in_array(T & arr, E & element) {
 int main() { 
 
 	// Trouble case
-	Expr e("(2 + (2 * 2) ^ 2)"); 
+	Expr e("(2 + (2 * 2) ^ 2)^2"); 
 	e.print();
 
 
