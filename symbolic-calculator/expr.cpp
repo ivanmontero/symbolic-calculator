@@ -17,6 +17,7 @@ Expr::Expr(std::string expr) {
 // TODO: Parse into tree
 // Version 1: numbers, parentheses, operators
 // Version 2: functions 
+// Version 3: Operator precedence
 std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 	expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end()); // Removes whitespace
 	std::stack<std::shared_ptr<ExprNode>> s;
@@ -24,7 +25,6 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 	s.push(root);
 	std::shared_ptr<ExprNode> curr = root;
 	for (std::string::iterator it = expr.begin(); it != expr.end(); it++) {
-		print(root);
 		std::cout << std::endl;
 		if (*it == '(') {
 			curr->left = std::make_shared<ExprNode>();
@@ -49,14 +49,16 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 					curr = temp->right;
 					root = temp;
 				} else {
-					std::cout << "entered" << std::endl;
-		/*			std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
-					temp->left = s.top();
-					s.pop();
+					//std::cout << "entered" << std::endl;
+					std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
+					temp->left = curr->right;
+					//s.pop();
 					temp->right = std::make_shared<ExprNode>();
+					curr->right = temp;
 					s.push(temp);
 					curr = temp->right;
-					root = temp;*/
+					//curr = temp->right;
+					//root = temp;
 				}
 			}
 		} else if (in_array(NUMBERS, *it)) {
@@ -72,6 +74,7 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 		} else {
 			std::cerr << "invalid token encountered" << std::endl;
 		}
+		print(root);
 	}
 
 	return root;
@@ -113,9 +116,10 @@ template<class T, class E> bool Expr::in_array(T & arr, E & element) {
 int main() { 
 
 	// Trouble case
-	Expr e("(2 + (2 * 2) ^ 2)^2"); 
-	e.print();
+	Expr e("(1 + (2 * 3 ^ 4) ^ 5)^6"); 
 
+
+	Expr f("(1 + (2 ^ 3 * 4 ^ 5) ^ 6)^7");
 
 	//std::cout << (int)('5' - '0') << std::endl;
 
