@@ -110,7 +110,7 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 			// Should NEVER encounter a function when popping
 			while (!ops.empty() 
 				&& ops.top()[0] != '('
-				&& index_of(OPERATORS, ops.top()[0]) >= index_of(OPERATORS, s[0]) 
+				&& index_of(OPERATORS, ops.top()[0])/2 >= index_of(OPERATORS, s[0])/2
 				&& s[0] != '^') {
 				postfix.push(ops.top());
 				ops.pop();
@@ -262,6 +262,8 @@ int main() {
 	Expr g("sin(1 +    x +     cos(2 ^ ln3 * 4 ^ 5) ^ 6)^7");
 
 	Expr d("sin(cos(2)/3*3.1415)");
+
+	Expr n("3+4*2/(1-5)^2^3");
 	
 
 	//std::cout << (int)('5' - '0') << std::endl;
