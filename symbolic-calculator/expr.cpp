@@ -10,75 +10,135 @@ const char const Expr::OPERATORS[5] = { '+','-','*','/','^' };
 const char const Expr::NUMBERS[10] = { '0','1','2','3','4','5','6','7','8','9' };
 
 Expr::Expr(std::string expr) {
+	std::cout << "Original: " << expr << std::endl;
 	this->root = parse(expr);	
 
 }
 
-// TODO: Parse into tree
-// Version 1: numbers, parentheses, operators
-// Version 2: functions 
-// Version 3: Operator precedence
+// TODO: Support decimal point
+// STD::STRING::END IS ONE PAST LAST CHARACTER
+
+// COMPLETELY DIFFERENT ALGORITHM:
+// Take string
+// Format into a space-seperated in-fix expression
+// utilize the shunting-yard algoritm to convert the expression to post-fix 
+// Create expression tree
 std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
-	expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end()); // Removes whitespace
-	std::stack<std::shared_ptr<ExprNode>> s;
-	std::shared_ptr<ExprNode> root = std::make_shared<ExprNode>();
-	s.push(root);
-	std::shared_ptr<ExprNode> curr = root;
-	for (std::string::iterator it = expr.begin(); it != expr.end(); it++) {
-		std::cout << std::endl;
-		if (*it == '(') {
-			curr->left = std::make_shared<ExprNode>();
-			s.push(curr);
-			curr = curr->left;
+	// -------- String preparation -> in-fix form --------
+	// Removes whitespace
+	expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end());
+	// Produces infix string
+	std::string infix;
+	for (std::string::iterator it = expr.begin(); it != expr.end();) {
+		// Numbers - can be more than one digit
+		if (in_array(NUMBERS, *it)) {
+			while (it != expr.end() && in_array(NUMBERS, *it)) {
+				infix.append(std::string(1, *it));
+				it++;
+			}
+			it--;
 		} else if (in_array(OPERATORS, *it)) {
-			if (curr->data.empty()) {	// In case it encounters an edge
-				curr->data = *it;
-				curr->right = std::make_shared<ExprNode>();
-				s.push(curr);
-				curr = curr->right;
-			} else {
-				// Two cases: 
-				// * curr is top
-				// * curr is in middle
-				if (s.size() <= 1) {
-					std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
-					temp->left = root;
-					if(!s.empty()) s.pop();
-					temp->right = std::make_shared<ExprNode>();
-					s.push(temp);
-					curr = temp->right;
-					root = temp;
-				} else {
-					//std::cout << "entered" << std::endl;
-					std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
-					temp->left = curr->right;
-					//s.pop();
-					temp->right = std::make_shared<ExprNode>();
-					curr->right = temp;
-					s.push(temp);
-					curr = temp->right;
-					//curr = temp->right;
-					//root = temp;
+			infix.append(std::string(1, *it));
+		} else {
+			int i = 0;
+			for (; i < sizeof(FUNCTIONS) / sizeof(std::string); i++) {
+				const std::string f = FUNCTIONS[i];
+				// Makes sure theres enough room left in expr to test
+				if (std::distance(it, expr.end()) >= f.size()) {
+					// Check for equivalence
+					if (f.compare(std::string(it, it + f.size())) == 0) {
+						infix.append(f);
+						it += f.size() - 1;
+						break;
+					}
 				}
 			}
-		} else if (in_array(NUMBERS, *it)) {
-			//curr->data = (int)(*it - '0'); // To number
-			curr->data = *it;
-			curr = s.top();
-			s.pop();
-		} else if (*it == ')') {
-			if (!s.empty()) {
-				curr = s.top();
-				s.pop();
-			}
-		} else {
-			std::cerr << "invalid token encountered" << std::endl;
+			if (i > sizeof(FUNCTIONS) / sizeof(std::string))
+				std::cerr << "INVALID CHARACTER ENCOUNTERED" << std::endl;
 		}
-		print(root);
+		if (it != expr.end()) {
+			infix.append(" ");
+			it++;
+		}
 	}
+	std::cout << infix << std::endl;
 
-	return root;
+	// -------- Shunting-Yard Algorithm -> post-fix form --------
+
+	// Assume if the first char of string is number, rest is a number
+
+
+	return std::shared_ptr<ExprNode>();
 }
+
+//std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
+//	expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end()); // Removes whitespace
+//	std::stack<std::shared_ptr<ExprNode>> s;
+//	std::shared_ptr<ExprNode> root = std::make_shared<ExprNode>();
+//	s.push(root);
+//	std::shared_ptr<ExprNode> curr = root;
+//	for (std::string::iterator it = expr.begin(); it != expr.end(); it++) {
+//		if (*it == '(') {
+//			curr->left = std::make_shared<ExprNode>();
+//			s.push(curr);
+//			curr = curr->left;
+//		}
+//		else if (in_array(OPERATORS, *it)) {
+//			if (curr->data.empty()) {	// In case it encounters an edge
+//				curr->data = *it;
+//				curr->right = std::make_shared<ExprNode>();
+//				s.push(curr);
+//				curr = curr->right;
+//			}
+//			else {
+//				// Two cases: 
+//				// * curr is top
+//				// * curr is in middle
+//				if (s.size() <= 1) {
+//					std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
+//					temp->left = root;
+//					if (!s.empty()) s.pop();
+//					temp->right = std::make_shared<ExprNode>();
+//					s.push(temp);
+//					curr = temp->right;
+//					root = temp;
+//				}
+//				else {
+//					//std::cout << "entered" << std::endl;
+//					std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
+//					temp->left = curr->right;
+//					//s.pop();
+//					temp->right = std::make_shared<ExprNode>();
+//					curr->right = temp;
+//					s.push(temp);
+//					curr = temp->right;
+//					//curr = temp->right;
+//					//root = temp;
+//				}
+//			}
+//		}
+//		else if (in_array(NUMBERS, *it)) {
+//			//curr->data = (int)(*it - '0'); // To number
+//			curr->data = *it;
+//			curr = s.top();
+//			s.pop();
+//		}
+//		else if (*it == ')') {
+//			if (!s.empty()) {
+//				curr = s.top();
+//				s.pop();
+//			}
+//		}
+//		else {
+//			std::cerr << "invalid token encountered" << std::endl;
+//		}
+//		print(root);
+//		std::cout << std::endl;
+//	}
+//	std::cout << std::endl << std::endl;
+//
+//	return root;
+//}
 
 void Expr::print() {
 	print(root);
@@ -121,12 +181,13 @@ int main() {
 
 	Expr f("(1 + (2 ^ 3 * 4 ^ 5) ^ 6)^7");
 
+
 	//std::cout << (int)('5' - '0') << std::endl;
 
-	/*Symbolic x("x");
-	Symbolic f = x + 1;
-	f = x * f;
-	f = ((f) ^ 2) * x;*/
+	//Symbolic x("x");
+	//Symbolic f = x + 1;
+	//f = sin(f ^ 2);
+	//std::cout << df(f, x) << std::endl;
 
 
 	std::cin.get();
