@@ -15,11 +15,9 @@ const char const Expr::OPERATORS[5] = { '+','-','*','/','^' };
 const char const Expr::NUMBERS[11] = { '0','1','2','3','4','5','6','7','8','9', '.'};
 
 Expr::Expr(std::string expr) {
-	std::cout << "Original : " << expr << std::endl;
-	this->root = parse(expr);	
+	parse(expr);
 }
 
-// TODO: Support decimal point
 // STD::STRING::END IS ONE PAST LAST CHARACTER
 
 // COMPLETELY DIFFERENT ALGORITHM:
@@ -27,13 +25,15 @@ Expr::Expr(std::string expr) {
 // Format into a space-seperated in-fix expression
 // utilize the shunting-yard algoritm to convert the expression to post-fix 
 // Create expression tree
-std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
+void Expr::parse(std::string expr) {
 	// -------- String preparation -> in-fix form --------
 	// TODO LIST:
 	// - Support variables (x, y, theta, etc)
-	// - Support side-by-side input (Ex: 4x instead of 4*x)
-	//		-- Requires check of numbers and variables
-	// - Place parentheses around bare functions (ex: sinx)
+	// - Properly placed multiplication symbols.
+	//		- Support side-by-side input (Ex: 4x instead of 4*x)
+	//			-- Requires check of numbers and variables
+	//		- Place parentheses around bare functions (ex: sinx)
+	// 
 	// ---------------------------------------------------
 	// Removes whitespace
 	expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end());
@@ -71,7 +71,7 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 					}
 				}
 			}
-			//TODO: Test if special character
+			//TODO: Test if special character (e, pi, etc)
 		
 
 			// Treat "unknown characters" as variables
@@ -95,10 +95,19 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 	std::cout << std::endl;
 
 	// -------- Shunting-Yard Algorithm -> post-fix form --------
-	// Assume if the first char of string is number, rest is a number? Yes.
-	// Assume the prep properly placed multiplication symbols.
-	//	- No numbers right next to a function?
-	//	- ASSUMES all functions must have parentheses
+	// TODO LIST:
+	// - (better) Support variables (x, y, theta, etc)
+	// - 
+	// ASSUMPTION LIST: (Assumes previous algorithm accounts for these)
+	// - if the first char of string is number, rest is a number
+	// - No numbers right next to a function (explicit multiplication)
+	// - ALL functions must have parentheses
+	// ---------------------------------------------------
+
+	// Assume ? Yes.
+	// Assume the prep 
+	//	- 
+	//	- 
 	std::queue<std::string> postfix;
 	std::stack<std::string> ops;
 	while (!infix.empty()) {
@@ -112,9 +121,9 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 		else if (in_array(OPERATORS, s[0])) {
 			// Should NEVER encounter a function when popping
 			while (!ops.empty() 
-				&& ops.top()[0] != '('
-				&& index_of(OPERATORS, ops.top()[0])/2 >= index_of(OPERATORS, s[0])/2
-				&& s[0] != '^') {
+					&& ops.top()[0] != '('
+					&& index_of(OPERATORS, ops.top()[0])/2 >= index_of(OPERATORS, s[0])/2
+					&& s[0] != '^') {
 				postfix.push(ops.top());
 				ops.pop();
 			}
@@ -140,11 +149,6 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 		ops.pop();
 	}
 
-	//while (!postfix.empty()) {
-	//	std::cout << postfix.front() << " ";
-	//	postfix.pop();
-	//}
-
 	std::cout << "postfix  : ";
 	for (int i = 0; i < postfix.size(); i++) {
 		std::cout << postfix.front() << " ";
@@ -155,97 +159,6 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 
 	// shunting yard straight to symbolic
 	// Numbers as doubles
-	return std::shared_ptr<ExprNode>();
-}
-
-//std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
-//	expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end()); // Removes whitespace
-//	std::stack<std::shared_ptr<ExprNode>> s;
-//	std::shared_ptr<ExprNode> root = std::make_shared<ExprNode>();
-//	s.push(root);
-//	std::shared_ptr<ExprNode> curr = root;
-//	for (std::string::iterator it = expr.begin(); it != expr.end(); it++) {
-//		if (*it == '(') {
-//			curr->left = std::make_shared<ExprNode>();
-//			s.push(curr);
-//			curr = curr->left;
-//		}
-//		else if (in_array(OPERATORS, *it)) {
-//			if (curr->data.empty()) {	// In case it encounters an edge
-//				curr->data = *it;
-//				curr->right = std::make_shared<ExprNode>();
-//				s.push(curr);
-//				curr = curr->right;
-//			}
-//			else {
-//				// Two cases: 
-//				// * curr is top
-//				// * curr is in middle
-//				if (s.size() <= 1) {
-//					std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
-//					temp->left = root;
-//					if (!s.empty()) s.pop();
-//					temp->right = std::make_shared<ExprNode>();
-//					s.push(temp);
-//					curr = temp->right;
-//					root = temp;
-//				}
-//				else {
-//					//std::cout << "entered" << std::endl;
-//					std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
-//					temp->left = curr->right;
-//					//s.pop();
-//					temp->right = std::make_shared<ExprNode>();
-//					curr->right = temp;
-//					s.push(temp);
-//					curr = temp->right;
-//					//curr = temp->right;
-//					//root = temp;
-//				}
-//			}
-//		}
-//		else if (in_array(NUMBERS, *it)) {
-//			//curr->data = (int)(*it - '0'); // To number
-//			curr->data = *it;
-//			curr = s.top();
-//			s.pop();
-//		}
-//		else if (*it == ')') {
-//			if (!s.empty()) {
-//				curr = s.top();
-//				s.pop();
-//			}
-//		}
-//		else {
-//			std::cerr << "invalid token encountered" << std::endl;
-//		}
-//		print(root);
-//		std::cout << std::endl;
-//	}
-//	std::cout << std::endl << std::endl;
-//
-//	return root;
-//}
-
-void Expr::print() {
-	print(root);
-	std::cout << std::endl;
-}
-
-void Expr::print(std::shared_ptr<ExprNode> root) {
-	if (root) {
-		//TODO: Fix enclose
-		//      * Find out how to see if a "shared_ptr" is null
-		// WORKS!!!
-		bool enclose = root->left.get() != 0 && root->right.get() != 0
-			&& !root->left->data.empty() && !root->right->data.empty();
-
-		if(enclose) std::cout << "(";
-		if (root->left) print(root->left);
-		std::cout << root->data;
-		if (root->right) print(root->right);
-		if (enclose) std::cout << ")";
-	}
 }
 
 template<class T, class E> bool Expr::in_array(T & arr, E & element) { 
@@ -255,12 +168,6 @@ template<class T, class E> bool Expr::in_array(T & arr, E & element) {
 template<class T, class E> int Expr::index_of(T & arr, E & element) {
 	return std::distance(std::begin(arr), std::find(std::begin(arr), std::end(arr), element));
 }
-
-//
-//If the current token is a '(', add a new node as the left child of the current node, and descend to the left child.
-//If the current token is in the list['+', '-', '/', '*'], set the root value of the current node to the operator represented by the current token.Add a new node as the right child of the current node and descend to the right child.
-//If the current token is a number, set the root value of the current node to the number and return to the parent.
-//If the current token is a ')', go to the parent of the current node.
 
 //testing purposes
 int main() { 
@@ -277,14 +184,6 @@ int main() {
 
 	Expr n("3+4*2/(1-5)^2^3");
 	Expr c("ln(x^243*y+7000/(320^90)^50*e^(253*x^5))");
-	
-
-	//std::cout << (int)('5' - '0') << std::endl;
-
-	//Symbolic x("x");
-	////Symbolic f = x + 1;
-	//f = sin(f ^ 2);
-	//std::cout << df(f, x) << std::endl;
 
 	std::cin.get();
 

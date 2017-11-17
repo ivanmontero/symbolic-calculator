@@ -4,15 +4,6 @@
 
 class Symbolic;
 
-struct ExprNode {
-	std::string data;
-	std::shared_ptr<ExprNode> left;
-	std::shared_ptr<ExprNode> right;
-
-	ExprNode() : data() {}
-	ExprNode(std::string data) : data(data) {}
-};
-
 class Expr {
 public:
 	Expr(std::string expr);
@@ -21,10 +12,7 @@ public:
 	
 private:
 	std::shared_ptr<Symbolic> expr;
-	std::shared_ptr<ExprNode> root;
-	std::shared_ptr<ExprNode> parse(std::string expr);
-
-	void print(std::shared_ptr<ExprNode> root);
+	void parse(std::string expr);
 
 	template<class T, class E> bool in_array(T & arr, E & element);
 	template<class T, class E> int index_of(T & arr, E & element);
