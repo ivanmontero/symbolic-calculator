@@ -15,7 +15,7 @@ const char const Expr::OPERATORS[5] = { '+','-','*','/','^' };
 const char const Expr::NUMBERS[11] = { '0','1','2','3','4','5','6','7','8','9', '.'};
 
 Expr::Expr(std::string expr) {
-	std::cout << "Original: " << expr << std::endl;
+	std::cout << "Original : " << expr << std::endl;
 	this->root = parse(expr);	
 }
 
@@ -85,11 +85,14 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 		if (it != expr.end())
 			it++;
 	}
-	/*while (!infix.empty()) {
+
+	std::cout << "infix    : ";
+	for (int i = 0; i < infix.size(); i++) {
 		std::cout << infix.front() << " ";
+		infix.push(infix.front());
 		infix.pop();
 	}
-	std::cout << std::endl;*/
+	std::cout << std::endl;
 
 	// -------- Shunting-Yard Algorithm -> post-fix form --------
 	// Assume if the first char of string is number, rest is a number? Yes.
@@ -129,17 +132,26 @@ std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
 				ops.pop();
 			}
 		}
+		else
+			postfix.push(s); // Variable
 	}
 	while (!ops.empty()) {
 		postfix.push(ops.top());
 		ops.pop();
 	}
 
-	while (!postfix.empty()) {
+	//while (!postfix.empty()) {
+	//	std::cout << postfix.front() << " ";
+	//	postfix.pop();
+	//}
+
+	std::cout << "postfix  : ";
+	for (int i = 0; i < postfix.size(); i++) {
 		std::cout << postfix.front() << " ";
+		postfix.push(postfix.front());
 		postfix.pop();
 	}
-	std::cout << std::endl;
+	std::cout << std::endl << std::endl;
 
 	// shunting yard straight to symbolic
 	// Numbers as doubles
@@ -264,6 +276,7 @@ int main() {
 	Expr d("sin(cos(2)/3*3.1415)");
 
 	Expr n("3+4*2/(1-5)^2^3");
+	Expr c("ln(x^243*y+7000/(320^90)^50*e^(253*x^5))");
 	
 
 	//std::cout << (int)('5' - '0') << std::endl;
