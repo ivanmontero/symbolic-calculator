@@ -16,7 +16,13 @@ const char const Expr::NUMBERS[11] = { '0','1','2','3','4','5','6','7','8','9', 
 
 Expr::Expr(std::string expr) {
 	this->expr = parse(expr);
-	
+	std::cout << "df/dx      : " << this->expr->df(Symbolic("x")) << std::endl;
+	std::cout << "df/dy      : " << this->expr->df(Symbolic("y")) << std::endl;
+	std::cout << "int(f)dx   : " << this->expr->integrate(Symbolic("x")) << std::endl;
+	std::cout << "int(f)dy   : " << this->expr->integrate(Symbolic("y")) << std::endl;
+	std::cout << "int(f)dx|x=4     : " << this->expr->integrate(Symbolic("x"))[Symbolic("x")==4] << std::endl;
+	std::cout << "int(f)dx|x=4,y=2 : " << this->expr->integrate(Symbolic("x"))[Symbolic("x") == 4, Symbolic("y") == 2] << std::endl;
+	std::cout << std::endl;
 }
 
 // STD::STRING::END IS ONE PAST LAST CHARACTER
@@ -191,7 +197,7 @@ std::shared_ptr<Symbolic> Expr::parse(std::string expr) {
 			ss.push(Symbolic(s));
 		}
 	}
-	std::cout << "simplified : " << ss.top() << std::endl << std::endl;
+	std::cout << "simplified : " << ss.top() << std::endl;
 
 	
 	return std::make_shared<Symbolic>(ss.top());
@@ -212,16 +218,17 @@ int main() {
 	//Expr e("(12   .   34 .+ (2 * 3 ^ 4) ^ 5)^6"); 
 
 
-	Expr f("(1 + (2 ^ 3 * 4 ^ 5) ^ 6)^7");
+	//Expr f("(1 + (2 ^ 3 * 4 ^ 5) ^ 6)^7");
 
-	Expr g("sin(1 +    x +     cos(2 ^ ln3 * 4 ^ 5) ^ 6)^7");
+	//Expr g("sin(1 +    x +     cos(2 ^ ln3 * 4 ^ 5) ^ 6)^7");
 
-	Expr d("sin(cos(2)/3*3.1415)");
+	//Expr d("sin(cos(2)/3*3.1415)");
 
-	Expr n("3+4*2/(1-5)^2^3");
+	//Expr n("3+4*2/(1-5)^2^3");
 
 	Expr c("ln(x^24.3*y+7000/(320^90)^50*e^(253*x^5))");
 	Expr cc("(5*2*x)^4");
+	Expr cd("x^2");
 
 	//Symbolic num1(1);
 	//Symbolic num2(2);
