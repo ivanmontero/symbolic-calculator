@@ -5,11 +5,13 @@
 class Symbolic;
 
 class Expr {
+	// Object methods
 public:
 	Expr(std::string expr);
-	
 private:
 	std::shared_ptr<Symbolic> expr;
+
+	// Static methods
 public:
 	static std::shared_ptr<Symbolic> parse(std::string expr);
 	template<class T, class E> static bool in_array(T & arr, E & element);

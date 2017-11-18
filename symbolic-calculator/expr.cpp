@@ -1,7 +1,6 @@
 #include <iostream>
 #include <algorithm>
 #include <stack>
-//#include <vector>
 #include <queue>
 #include <stack>
 
@@ -25,13 +24,6 @@ Expr::Expr(std::string expr) {
 	std::cout << std::endl;
 }
 
-// STD::STRING::END IS ONE PAST LAST CHARACTER
-
-// COMPLETELY DIFFERENT ALGORITHM:
-// Take string
-// Format into a space-seperated in-fix expression
-// utilize the shunting-yard algoritm to convert the expression to post-fix 
-// Create expression tree
 std::shared_ptr<Symbolic> Expr::parse(std::string expr) {
 	std::cout << "Original   : " << expr << std::endl;
 	// -------- String preparation -> in-fix form --------
@@ -230,6 +222,12 @@ int main() {
 	Expr cc("(5*2*x)^4");
 	Expr cd("x^2");
 
+	Symbolic x("x");
+	Symbolic v = (x + 1, x + 1, x + 1);
+	Symbolic u = (x + 2, x + 3, x + 4);
+	std::cout << v << std::endl;
+	std::cout << (v % u) << std::endl;
+
 	//Symbolic num1(1);
 	//Symbolic num2(2);
 	//Symbolic test = num1 ^ num2;
@@ -239,73 +237,3 @@ int main() {
 	std::cin.get();
 
 }
-
-
-//std::shared_ptr<ExprNode> Expr::parse(std::string expr) {
-//	expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end()); // Removes whitespace
-//	std::stack<std::shared_ptr<ExprNode>> s;
-//	std::shared_ptr<ExprNode> root = std::make_shared<ExprNode>();
-//	s.push(root);
-//	std::shared_ptr<ExprNode> curr = root;
-//	for (std::string::iterator it = expr.begin(); it != expr.end(); it++) {
-//		if (*it == '(') {
-//			curr->left = std::make_shared<ExprNode>();
-//			s.push(curr);
-//			curr = curr->left;
-//		}
-//		else if (in_array(OPERATORS, *it)) {
-//			if (curr->data.empty()) {	// In case it encounters an edge
-//				curr->data = *it;
-//				curr->right = std::make_shared<ExprNode>();
-//				s.push(curr);
-//				curr = curr->right;
-//			}
-//			else {
-//				// Two cases: 
-//				// * curr is top
-//				// * curr is in middle
-//				if (s.size() <= 1) {
-//					std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
-//					temp->left = root;
-//					if (!s.empty()) s.pop();
-//					temp->right = std::make_shared<ExprNode>();
-//					s.push(temp);
-//					curr = temp->right;
-//					root = temp;
-//				}
-//				else {
-//					//std::cout << "entered" << std::endl;
-//					std::shared_ptr<ExprNode> temp = std::make_shared<ExprNode>(std::string(1, *it));
-//					temp->left = curr->right;
-//					//s.pop();
-//					temp->right = std::make_shared<ExprNode>();
-//					curr->right = temp;
-//					s.push(temp);
-//					curr = temp->right;
-//					//curr = temp->right;
-//					//root = temp;
-//				}
-//			}
-//		}
-//		else if (in_array(NUMBERS, *it)) {
-//			//curr->data = (int)(*it - '0'); // To number
-//			curr->data = *it;
-//			curr = s.top();
-//			s.pop();
-//		}
-//		else if (*it == ')') {
-//			if (!s.empty()) {
-//				curr = s.top();
-//				s.pop();
-//			}
-//		}
-//		else {
-//			std::cerr << "invalid token encountered" << std::endl;
-//		}
-//		print(root);
-//		std::cout << std::endl;
-//	}
-//	std::cout << std::endl << std::endl;
-//
-//	return root;
-//}
