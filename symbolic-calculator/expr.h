@@ -12,7 +12,7 @@ public:
 	
 private:
 	std::shared_ptr<Symbolic> expr;
-	void parse(std::string expr);
+	std::shared_ptr<Symbolic> parse(std::string expr);
 
 	template<class T, class E> bool in_array(T & arr, E & element);
 	template<class T, class E> int index_of(T & arr, E & element);

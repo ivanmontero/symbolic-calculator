@@ -15,7 +15,8 @@ const char const Expr::OPERATORS[5] = { '+','-','*','/','^' };
 const char const Expr::NUMBERS[11] = { '0','1','2','3','4','5','6','7','8','9', '.'};
 
 Expr::Expr(std::string expr) {
-	parse(expr);
+	this->expr = parse(expr);
+	
 }
 
 // STD::STRING::END IS ONE PAST LAST CHARACTER
@@ -25,7 +26,8 @@ Expr::Expr(std::string expr) {
 // Format into a space-seperated in-fix expression
 // utilize the shunting-yard algoritm to convert the expression to post-fix 
 // Create expression tree
-void Expr::parse(std::string expr) {
+std::shared_ptr<Symbolic> Expr::parse(std::string expr) {
+	std::cout << "Original   : " << expr << std::endl;
 	// -------- String preparation -> in-fix form --------
 	// TODO LIST:
 	// - Support variables (x, y, theta, etc)
@@ -86,7 +88,7 @@ void Expr::parse(std::string expr) {
 			it++;
 	}
 
-	std::cout << "infix    : ";
+	std::cout << "infix      : ";
 	for (int i = 0; i < infix.size(); i++) {
 		std::cout << infix.front() << " ";
 		infix.push(infix.front());
@@ -97,28 +99,24 @@ void Expr::parse(std::string expr) {
 	// -------- Shunting-Yard Algorithm -> post-fix form --------
 	// TODO LIST:
 	// - (better) Support variables (x, y, theta, etc)
-	// - 
 	// ASSUMPTION LIST: (Assumes previous algorithm accounts for these)
 	// - if the first char of string is number, rest is a number
 	// - No numbers right next to a function (explicit multiplication)
 	// - ALL functions must have parentheses
-	// ---------------------------------------------------
-
-	// Assume ? Yes.
-	// Assume the prep 
-	//	- 
-	//	- 
+	// -----------------------------------------------------------
 	std::queue<std::string> postfix;
 	std::stack<std::string> ops;
 	while (!infix.empty()) {
 		std::string s = infix.front();
 		infix.pop();
 		// Numbers pushed right into the stack
-		if (in_array(NUMBERS, s[0])) postfix.push(s);
-		// If function, pushed right into ops stack. Assumed that openning
-		// parenthesis will follow
-		else if (in_array(FUNCTIONS, s)) ops.push(s);
-		else if (in_array(OPERATORS, s[0])) {
+		if (in_array(NUMBERS, s[0])) {
+			postfix.push(s);
+			// If function, pushed right into ops stack. Assumed that openning
+			// parenthesis will follow
+		} else if (in_array(FUNCTIONS, s)) { 
+			ops.push(s);
+		} else if (in_array(OPERATORS, s[0])) {
 			// Should NEVER encounter a function when popping
 			while (!ops.empty() 
 					&& ops.top()[0] != '('
@@ -128,9 +126,9 @@ void Expr::parse(std::string expr) {
 				ops.pop();
 			}
 			ops.push(s);
-		} else if (s[0] == '(')
+		} else if (s[0] == '(') {
 			ops.push(s);
-		else if (s[0] == ')') {
+		} else if (s[0] == ')') {
 			while (ops.top()[0] != '(') {
 				postfix.push(ops.top());
 				ops.pop();
@@ -140,25 +138,63 @@ void Expr::parse(std::string expr) {
 				postfix.push(ops.top());
 				ops.pop();
 			}
-		}
-		else
+		} else {
 			postfix.push(s); // Variable
+		}
 	}
 	while (!ops.empty()) {
 		postfix.push(ops.top());
 		ops.pop();
 	}
 
-	std::cout << "postfix  : ";
+	std::cout << "postfix    : ";
 	for (int i = 0; i < postfix.size(); i++) {
 		std::cout << postfix.front() << " ";
 		postfix.push(postfix.front());
 		postfix.pop();
 	}
-	std::cout << std::endl << std::endl;
+	std::cout << std::endl;
 
-	// shunting yard straight to symbolic
-	// Numbers as doubles
+	// -------- post-fix evaluator -> SymbolicC++ Object Creation --------
+	// TODO LIST:
+	// - Everything
+	// - Optimize (not use tons of symbolic objects)
+	// PROBLEMS:
+	// - Stack to store Symbolic object AND strings
+	// -------------------------------------------------------------------
+	std::stack<Symbolic> ss;
+	while (!postfix.empty()) {
+		std::string s = postfix.front();
+		postfix.pop();
+		if (in_array(NUMBERS, s[0])) {
+			ss.push(Symbolic(std::stod(s)));
+		} else if (in_array(OPERATORS, s[0])) {
+			Symbolic r = ss.top(), l;
+			ss.pop();
+			l = ss.top();
+			ss.pop();
+			// '+','-','*','/','^'
+			if		(s[0] == '+') ss.push(l + r);
+			else if (s[0] == '-') ss.push(l - r);
+			else if (s[0] == '*') ss.push(l * r);
+			else if (s[0] == '/') ss.push(l / r);
+			else if (s[0] == '^') ss.push(l ^ r);
+		} else if (in_array(FUNCTIONS, s)) {
+			Symbolic n = ss.top();
+			ss.pop();
+			// "sin", "cos", "tan", "ln"
+			if		(s.compare("sin") == 0)	ss.push(sin(n));
+			else if (s.compare("cos") == 0) ss.push(cos(n));
+			else if (s.compare("tan") == 0) ss.push(tan(n));
+			else if (s.compare("ln") == 0)  ss.push(ln(n));
+		} else { // variables
+			ss.push(Symbolic(s));
+		}
+	}
+	std::cout << "simplified : " << ss.top() << std::endl << std::endl;
+
+	
+	return std::make_shared<Symbolic>(ss.top());
 }
 
 template<class T, class E> bool Expr::in_array(T & arr, E & element) { 
@@ -173,7 +209,7 @@ template<class T, class E> int Expr::index_of(T & arr, E & element) {
 int main() { 
 
 	// Trouble case
-	Expr e("(12   .   34 .+ (2 * 3 ^ 4) ^ 5)^6"); 
+	//Expr e("(12   .   34 .+ (2 * 3 ^ 4) ^ 5)^6"); 
 
 
 	Expr f("(1 + (2 ^ 3 * 4 ^ 5) ^ 6)^7");
@@ -183,7 +219,15 @@ int main() {
 	Expr d("sin(cos(2)/3*3.1415)");
 
 	Expr n("3+4*2/(1-5)^2^3");
-	Expr c("ln(x^243*y+7000/(320^90)^50*e^(253*x^5))");
+
+	Expr c("ln(x^24.3*y+7000/(320^90)^50*e^(253*x^5))");
+	Expr cc("(5*2*x)^4");
+
+	//Symbolic num1(1);
+	//Symbolic num2(2);
+	//Symbolic test = num1 ^ num2;
+
+	//std::cout << test << std::endl;
 
 	std::cin.get();
 
