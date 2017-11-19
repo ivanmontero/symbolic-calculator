@@ -3,6 +3,9 @@
 #include <stack>
 #include <queue>
 #include <stack>
+#include <thread>
+#include <vector>
+#include <sstream>
 
 #include "expr.h"
 #include "symbolicc++.h"
@@ -24,6 +27,8 @@ Expr::Expr(std::string expr) {
 	std::cout << std::endl;
 }
 
+
+// TODO: NEGATIVE NUMBERS
 std::shared_ptr<Symbolic> Expr::parse(std::string expr) {
 	std::cout << "Original   : " << expr << std::endl;
 	// -------- String preparation -> in-fix form --------
@@ -218,15 +223,73 @@ int main() {
 
 	//Expr n("3+4*2/(1-5)^2^3");
 
-	Expr c("ln(x^24.3*y+7000/(320^90)^50*e^(253*x^5))");
+	Expr c("x^24.3*y+7000/(320^90)^50*e^(253*x^5)");
 	Expr cc("(5*2*x)^4");
 	Expr cd("x^2");
 
-	Symbolic x("x");
-	Symbolic v = (x + 1, x + 1, x + 1);
-	Symbolic u = (x + 2, x + 3, x + 4);
-	std::cout << v << std::endl;
-	std::cout << (v % u) << std::endl;
+	//Symbolic x("x");
+	//Symbolic v = (x + 1, x + 1, x + 1);
+	//Symbolic u = (x + 2, x + 3, x + 4);
+	//std::cout << v << std::endl;
+	//std::cout << (v % u) << std::endl;
+
+
+	//Symbolic x("x"), y("y"), f(*Expr::parse("x*sin(x*y)")), x1(0), x2(10), y1(0), y2(5*x);
+	//std::cout << "Original: int(int(" << f << ")dy from " << y1 << " to " << y2 << ")dx from " << y1 << " to " << y2 << std::endl;
+	//Symbolic r1 = (f.integrate(y)[y == y2] - f.integrate(y)[y == y1]);
+	//std::cout << "Result  : " << (r1.integrate(x)[x == x2] - r1.integrate(x)[x == x1]) << std::endl << std::endl;
+	//Symbolic t("t");			// find out how to evaluate at double........
+	//Symbolic r = (t, t^2, t);
+	//std::cout << "r(t) = " << r << std::endl;
+	//Symbolic rp = df(r, t);
+	//std::cout << "r'(t) = " << rp << std::endl;
+	//Symbolic rpp = df(rp, t);
+	//std::cout << "r''(t) = " << rpp << std::endl;
+	//Symbolic T = (rp / (sqrt((rp(0)^2) + (rp(1)^2) + (rp(2)^2))));
+	//T = T[(sin(t) ^ (2)) + (cos(t) ^ (2)) == 1];
+	////Symbolic N = rp(0);
+	//std::cout << "T(t) = " << T << std::endl;
+	//Symbolic Tp = df(T, t);
+	//std::cout << "T'(t) = " << Tp << std::endl;
+	//Symbolic N = (Tp / (sqrt((Tp(0) ^ 2) + (Tp(1) ^ 2) + (Tp(2) ^ 2))));
+	//N = N[(sin(t) ^ (2)) + (cos(t) ^ (2)) == 1];
+	//std::cout << "N(t) = " << N << std::endl;
+	//Symbolic B = T % N;
+	//std::cout << "B(t) = " << B << std::endl;
+
+
+
+	//int ts = std::thread::hardware_concurrency();
+	//std::vector<std::thread> tds;
+	//int min = 0, max = 16, n = (max - min) / ts;
+	//for (int i = 0; i < ts; i++) {
+	//	tds.push_back(std::thread([=]() {
+	//		for(int j = min + n * i; j < min + n * (i + 1); j++)
+	//			std::cout << "r(" << j << ")=" << r[t == j] << " T(" << j << ")=" << T[t == j] << " N(" << j << ")=" << N[t == j] << " B(" << j << ")=" << B[t == j] << std::endl;
+	//	}));
+	//}
+	//for (int i = 0; i < tds.size(); i++)
+	//	tds[i].join();
+
+	//Symbolic b("b");
+	//std::cout << (double(sin(b)[b == 2]));
+
+	//std::cout << "r(0)=" << r[t == 0] << " T(0)=" << T[t == 0] << " N(0)=" << N[t == 0] << " B(0)=" << B[t == 0] << std::endl;
+	//std::stringstream ss;
+	//ss << B[t == 0](0);
+	//std::cout << Expr::parse(ss.str());
+
+	//for (int i = 0; i < 10; i++) {
+	//	
+	///*	std::cout << "r(" << i << ")=" << r[t == i] << std::endl;
+	//	std::cout << "T(" << i << ")=" << T[t == i] << std::endl;
+	//	std::cout << "N(" << i << ")=" << N[t == i] << std::endl;*/
+	//	//std::cout << "B(" << i << ")=" << B.subst(t, i) << std::endl << std::endl;
+	//}
+
+	//Symbolic n1 = (Symbolic(1), Symbolic(0), Symbolic(0));
+	//Symbolic n2 = (Symbolic(0), Symbolic(1), Symbolic(0));
+	//std::cout << n1 % n2 << std::endl;
 
 	//Symbolic num1(1);
 	//Symbolic num2(2);
