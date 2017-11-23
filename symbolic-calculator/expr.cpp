@@ -34,7 +34,8 @@ Symbolic Expr::parse(std::string expr) {
 }
 
 double Expr::eval(std::string expr) {
-	return to_double(to_postfix(to_infix(expr)));
+	return expr.find_first_not_of("0123456789.") == std::string::npos 
+		? std::stod(expr) : to_double(to_postfix(to_infix(expr)));
 }
 
 
@@ -279,7 +280,7 @@ int main() {
 
 	//std::cout << n << std::endl;
 
-	std::cout << Expr::eval("5^(1/2)");
+	for(int i = 0; i<10;i++) std::cout << Expr::eval("sin(5^(1/2))^2");
 
 	std::cin.get();
 
