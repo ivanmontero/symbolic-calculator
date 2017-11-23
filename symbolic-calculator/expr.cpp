@@ -30,8 +30,14 @@ Expr::Expr(std::string expr) {
 // TODO: NEGATIVE NUMBERS
 Symbolic Expr::parse(std::string expr) {
 	std::cout << "Original   : " << expr << std::endl;
-	return eval_postfix<Symbolic>(to_postfix(to_infix(expr)));
+	return to_symbolic(to_postfix(to_infix(expr)));
 }
+
+double Expr::eval(std::string expr) {
+	return to_double(to_postfix(to_infix(expr)));
+}
+
+
 
 // -------- String preparation -> in-fix form --------
 // TODO LIST:
@@ -81,16 +87,11 @@ std::queue<std::string> Expr::to_infix(std::string str) {
 					}
 				}
 			}
-			//TODO: Test if special character (e, pi, etc)
-
-
+			/*********************** TODO: Test if special character (e, pi, etc) ***********************/
 			// Treat "unknown characters" as variables
 			if (!found) {
 				infix.push(std::string(1, *it));
 			}
-
-			//if (i >= sizeof(FUNCTIONS) / sizeof(std::string))
-			//	std::cerr << "INVALID CHARACTER ENCOUNTERED" << std::endl;
 		}
 		if (it != str.end())
 			it++;
@@ -105,7 +106,6 @@ std::queue<std::string> Expr::to_infix(std::string str) {
 	std::cout << std::endl;
 
 	return infix;
-
 }
 
 // -------- Shunting-Yard Algorithm -> post-fix form --------
@@ -155,8 +155,7 @@ std::queue<std::string> Expr::to_postfix(std::queue<std::string> infix) {
 				postfix.push(ops.top());
 				ops.pop();
 			}
-		}
-		else {
+		} else {
 			postfix.push(s); // Variable
 		}
 	}
@@ -176,23 +175,22 @@ std::queue<std::string> Expr::to_postfix(std::queue<std::string> infix) {
 	return postfix;
 }
 
-// -------- post-fix evaluator -> T Object Creation --------
+// -------- post-fix evaluator -> SymbolicC++ Object Creation --------
 // TODO LIST:
-// - Everything
-// - Optimize (not use tons of symbolic objects)
+// - Optimize
 // PROBLEMS:
 // - Stack to store Symbolic object AND strings
-// ---------------------------------------------------------
-template<class T> T Expr::eval_postfix(std::queue<std::string> postfix) {
-	std::stack<T> ss;
+// -------------------------------------------------------------------
+Symbolic Expr::to_symbolic(std::queue<std::string> postfix) {
+	std::stack<Symbolic> ss;
 	while (!postfix.empty()) {
 		std::string s = postfix.front();
 		postfix.pop();
 		if (in_array(NUMBERS, s[0])) {
-			ss.push(T(std::stod(s)));
+			ss.push(Symbolic(std::stod(s)));
 		}
 		else if (in_array(OPERATORS, s[0])) {
-			T r = ss.top(), l;
+			Symbolic r = ss.top(), l;
 			ss.pop();
 			l = ss.top();
 			ss.pop();
@@ -204,7 +202,7 @@ template<class T> T Expr::eval_postfix(std::queue<std::string> postfix) {
 			else if (s[0] == '^') ss.push(l ^ r);
 		}
 		else if (in_array(FUNCTIONS, s)) {
-			T n = ss.top();
+			Symbolic n = ss.top();
 			ss.pop();
 			// "sin", "cos", "tan", "ln"
 			if (s.compare("sin") == 0)	ss.push(sin(n));
@@ -213,7 +211,46 @@ template<class T> T Expr::eval_postfix(std::queue<std::string> postfix) {
 			else if (s.compare("ln") == 0)  ss.push(ln(n));
 		}
 		else { // variables
-			ss.push(T(s));
+			ss.push(Symbolic(s));
+		}
+	}
+	std::cout << "simplified : " << ss.top() << std::endl;
+
+	return ss.top();
+}
+
+// -------- post-fix evaluator -> double value --------
+// TODO LIST:
+// - Optimize
+// ----------------------------------------------------
+double Expr::to_double(std::queue<std::string> postfix) {
+	std::stack<double> ss;
+	while (!postfix.empty()) {
+		std::string s = postfix.front();
+		postfix.pop();
+		if (in_array(NUMBERS, s[0])) {
+			ss.push(std::stod(s));
+		}
+		else if (in_array(OPERATORS, s[0])) {
+			double r = ss.top(), l;
+			ss.pop();
+			l = ss.top();
+			ss.pop();
+			// '+','-','*','/','^'
+			if (s[0] == '+') ss.push(l + r);
+			else if (s[0] == '-') ss.push(l - r);
+			else if (s[0] == '*') ss.push(l * r);
+			else if (s[0] == '/') ss.push(l / r);
+			else if (s[0] == '^') ss.push(pow(l, r));
+		}
+		else if (in_array(FUNCTIONS, s)) {
+			double n = ss.top();
+			ss.pop();
+			// "sin", "cos", "tan", "ln"
+			if (s.compare("sin") == 0)	   ss.push(sin(n));
+			else if (s.compare("cos") == 0) ss.push(cos(n));
+			else if (s.compare("tan") == 0) ss.push(tan(n));
+			else if (s.compare("ln") == 0)  ss.push(log(n));
 		}
 	}
 	std::cout << "simplified : " << ss.top() << std::endl;
@@ -235,13 +272,14 @@ int main() {
 	Expr cc("(5*2*x)^4");
 	Expr cd("x^2");
 */
-
-	Symbolic e = *Expr::parse("cos(x)"), x("x");
-	e = e.df(x);
+	//Symbolic e = *Expr::parse("cos(x)"), x("x");
+	//e = e.df(x);
 	//Numeric<double> n(e[x == 2]);
 	//Number<double> n(e.subst(x, 2));
 
 	//std::cout << n << std::endl;
+
+	std::cout << Expr::eval("5^(1/2)");
 
 	std::cin.get();
 
