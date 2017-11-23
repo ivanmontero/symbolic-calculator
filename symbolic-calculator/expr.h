@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <queue>
 
 class Symbolic;
 
@@ -13,7 +14,11 @@ private:
 
 	// Static methods
 public:
-	static std::shared_ptr<Symbolic> parse(std::string expr);
+	static Symbolic parse(std::string expr);
+	// TODO: Use vectors insteasd of queues.
+	static std::queue<std::string> to_infix(std::string str);
+	static std::queue<std::string> to_postfix(std::queue<std::string> infix);
+	template<class T> static T eval_postfix(std::queue<std::string> postfix);
 	template<class T, class E> static bool in_array(T & arr, E & element);
 	template<class T, class E> static int index_of(T & arr, E & element);
 
