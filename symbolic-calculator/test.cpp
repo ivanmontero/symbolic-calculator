@@ -4,9 +4,11 @@
 int main() {
 	Expr f("2*-x*(e^x)^2");
 	Expr g("x^3");
-	Expr fg = (f * g).df("x");
+	Expr fog = f.subst("x", g);
 
-	std::cout << fg.to_string() << std::endl;
+	std::cout << fog.to_string() << std::endl;
+
+	std::cout << fog.at("x", 1).to_string();
 
 	std::cin.get();
 }

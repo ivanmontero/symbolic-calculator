@@ -154,7 +154,6 @@ std::queue<std::string> Expr::to_infix(std::string str) {
 					}
 				}
 			}
-			/*********************** TODO: Test if special character (e, pi, etc) ***********************/
 			// Treat "unknown characters" as variables
 			if (!found) {
 				infix.push(std::string(1, *it));
