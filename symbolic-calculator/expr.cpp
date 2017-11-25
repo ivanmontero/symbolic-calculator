@@ -46,11 +46,9 @@ double Expr::eval(Symbolic s) {
 std::queue<std::string> Expr::to_infix(std::string str) {
 	// Removes whitespace
 	str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
-	// Produces infix vector
 	std::queue<std::string> infix;
 	for (std::string::iterator it = str.begin(); it != str.end();) {
 		// Numbers - can be more than one digit
-		// TODO: SUPPORT FOR PI OR E
 		if (in_array(NUMBERS, *it)) {
 			std::string n;
 			while (it != str.end() && in_array(NUMBERS, *it)) {
@@ -294,10 +292,4 @@ template<class T, class E> bool Expr::in_array(T & arr, E & element) {
 
 template<class T, class E> int Expr::index_of(T & arr, E & element) {
 	return std::distance(std::begin(arr), std::find(std::begin(arr), std::end(arr), element));
-}
-
-int main() { 
-	std::cout << Expr::parse("sin(pi)");
-
-	std::cin.get();
 }
