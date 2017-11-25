@@ -3,6 +3,7 @@
 #include <queue>
 #include <stack>
 #include <sstream>
+#include "symbolicc++.h"
 
 #include "expr.h"
 
@@ -16,22 +17,76 @@ const char const Expr::PARENTHESES[2] = { '(', ')' };
 const char const Expr::OPERATORS[6] = { '+','-','*','/','^', 'u' }; 
 const char const Expr::NUMBERS[11] = { '0','1','2','3','4','5','6','7','8','9', '.'};
 
-Symbolic Expr::parse(std::string expr) {
+/******************************** OBJECT METHODS ********************************/
+
+std::shared_ptr<Symbolic> Expr::parse(std::string expr) {
 	std::cout << "Original   : " << expr << std::endl;
-	return to_symbolic(to_postfix(to_infix(expr)));
+	return std::make_shared<Symbolic>(to_symbolic(to_postfix(to_infix(expr))));
 }
 
+Expr::Expr(std::string expr) { set(expr); }
+
+Expr::Expr(Expr& o) { this->expr = o.expr;  }
+
+Expr::Expr(Symbolic expr) { this->expr = std::make_shared<Symbolic>(expr); }
+
+void Expr::set(std::string expr) { this->expr = parse(expr); }
+
+Expr Expr::at(std::string var, double val) {
+	return Expr((*this->expr).subst(Symbolic(var), val));
+}
+
+double Expr::eval_at(std::string var, double val) {
+	return eval(to_string((*this->expr).subst(Symbolic(var), val)));
+}
+
+Expr Expr::subst(std::string var, Expr f) {
+	return Expr((*this->expr).subst(Symbolic(var), *f.expr));
+}
+
+Expr Expr::df(std::string var) {
+	return Expr(this->expr->df(Symbolic(var)));
+}
+
+Expr Expr::integrate(std::string var) {
+	return Expr(this->expr->integrate(Symbolic(var)));
+}
+
+Expr Expr::operator+(const Expr& o) const {
+	return Expr((*this->expr) + (*o.expr));
+}
+
+Expr Expr::operator-(const Expr& o) const{
+	return Expr((*this->expr) - (*o.expr));
+}
+
+Expr Expr::operator*(const Expr& o) const {
+	return Expr((*this->expr) * (*o.expr));
+}
+
+Expr Expr::operator/(const Expr& o) const {
+	return Expr((*this->expr) / (*o.expr));
+}
+
+std::string Expr::to_string() {
+	return to_string(*this->expr);
+}
+
+/******************************** STATIC METHODS ********************************/
 // doesn't quicky evaluate negative numbers
 double Expr::eval(std::string expr) {
 	return expr.find_first_not_of("0123456789.") == std::string::npos 
 		? std::stod(expr) : to_double(to_postfix(to_infix(expr)));
 }
 
-double Expr::eval(Symbolic s) {
+double Expr::eval(Symbolic expr) {
+	return eval(to_string(expr));
+}
+
+std::string Expr::to_string(Symbolic expr) {
 	std::stringstream ss;
-	ss << s;
-	std::string expr = ss.str();
-	return eval(expr);
+	ss << expr;
+	return ss.str();
 }
 
 // -------- String preparation -> in-fix form --------
