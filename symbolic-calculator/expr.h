@@ -29,6 +29,6 @@ public:
 	static const std::string const FUNCTIONS[4];
 	static const std::string const SPECIAL_NUMBERS[2];
 	static const char const PARENTHESES[2];
-	static const char const OPERATORS[5];
+	static const char const OPERATORS[6];
 	static const char const NUMBERS[11];
 };

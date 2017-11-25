@@ -13,7 +13,7 @@
 const std::string const Expr::FUNCTIONS[4] = { "sin", "cos", "tan", "ln" };
 const char const Expr::PARENTHESES[2] = { '(', ')' };
 // PRECEDENCE = index / 2
-const char const Expr::OPERATORS[5] = { '+','-','*','/','^' }; 
+const char const Expr::OPERATORS[6] = { '+','-','*','/','^', 'u' }; 
 const char const Expr::NUMBERS[11] = { '0','1','2','3','4','5','6','7','8','9', '.'};
 
 Expr::Expr(std::string expr) {
@@ -37,8 +37,6 @@ double Expr::eval(std::string expr) {
 	return expr.find_first_not_of("0123456789.") == std::string::npos 
 		? std::stod(expr) : to_double(to_postfix(to_infix(expr)));
 }
-
-
 
 // -------- String preparation -> in-fix form --------
 // TODO LIST:
@@ -70,7 +68,12 @@ std::queue<std::string> Expr::to_infix(std::string str) {
 			it--;
 		}
 		else if (in_array(OPERATORS, *it) || in_array(PARENTHESES, *it)) {
-			infix.push(std::string(1, *it));
+			// Unary minus -> preceded by another operator, left parentheses,
+			// or is the first character
+			if (*it == '-' && (it == str.begin() || in_array(OPERATORS, *(it - 1)) || *(it - 1) == '('))
+				infix.push("u");	// "u" represents unary minus operator
+			else
+				infix.push(std::string(1, *it));
 		}
 		else {
 			// var to avoid unnessessary checks.
@@ -191,16 +194,22 @@ Symbolic Expr::to_symbolic(std::queue<std::string> postfix) {
 			ss.push(Symbolic(std::stod(s)));
 		}
 		else if (in_array(OPERATORS, s[0])) {
-			Symbolic r = ss.top(), l;
-			ss.pop();
-			l = ss.top();
-			ss.pop();
-			// '+','-','*','/','^'
-			if (s[0] == '+') ss.push(l + r);
-			else if (s[0] == '-') ss.push(l - r);
-			else if (s[0] == '*') ss.push(l * r);
-			else if (s[0] == '/') ss.push(l / r);
-			else if (s[0] == '^') ss.push(l ^ r);
+			if (s[0] == 'u') {
+				Symbolic t = ss.top();
+				ss.pop();
+				ss.push(-t);
+			} else {
+				Symbolic r = ss.top(), l;
+				ss.pop();
+				l = ss.top();
+				ss.pop();
+				// '+','-','*','/','^'
+				if (s[0] == '+') ss.push(l + r);
+				else if (s[0] == '-') ss.push(l - r);
+				else if (s[0] == '*') ss.push(l * r);
+				else if (s[0] == '/') ss.push(l / r);
+				else if (s[0] == '^') ss.push(l ^ r);
+			}
 		}
 		else if (in_array(FUNCTIONS, s)) {
 			Symbolic n = ss.top();
@@ -233,16 +242,22 @@ double Expr::to_double(std::queue<std::string> postfix) {
 			ss.push(std::stod(s));
 		}
 		else if (in_array(OPERATORS, s[0])) {
-			double r = ss.top(), l;
-			ss.pop();
-			l = ss.top();
-			ss.pop();
-			// '+','-','*','/','^'
-			if (s[0] == '+') ss.push(l + r);
-			else if (s[0] == '-') ss.push(l - r);
-			else if (s[0] == '*') ss.push(l * r);
-			else if (s[0] == '/') ss.push(l / r);
-			else if (s[0] == '^') ss.push(pow(l, r));
+			if (s[0] == 'u') {
+				double t = ss.top();
+				ss.pop();
+				ss.push(-t);
+			} else {
+				double r = ss.top(), l;
+				ss.pop();
+				l = ss.top();
+				ss.pop();
+				// '+','-','*','/','^'
+				if (s[0] == '+') ss.push(l + r);
+				else if (s[0] == '-') ss.push(l - r);
+				else if (s[0] == '*') ss.push(l * r);
+				else if (s[0] == '/') ss.push(l / r);
+				else if (s[0] == '^') ss.push(pow(l, r));
+			}
 		}
 		else if (in_array(FUNCTIONS, s)) {
 			double n = ss.top();
@@ -267,34 +282,8 @@ template<class T, class E> int Expr::index_of(T & arr, E & element) {
 	return std::distance(std::begin(arr), std::find(std::begin(arr), std::end(arr), element));
 }
 
-//testing purposes
 int main() { 
-	/*Expr c("x^24.3*y+7000/(320^90)^50*e^(253*x^5)");
-	Expr cc("(5*2*x)^4");
-	Expr cd("x^2");
-*/
-	//Symbolic e = *Expr::parse("cos(x)"), x("x");
-	//e = e.df(x);
-	//Numeric<double> n(e[x == 2]);
-	//Number<double> n(e.subst(x, 2));
-
-	//std::cout << n << std::endl;
-
-	for(int i = 0; i<10;i++) std::cout << Expr::eval("sin(5^(1/2))^2");
+	std::cout << Expr::eval("5-3^2");
 
 	std::cin.get();
-
 }
-
-// a precendence implementation
-//switch (c)
-//{
-//case '-': case '+':
-//	return 1;
-//case '*': case '/':
-//	return 2;
-//case '^': case 'u': //note the 'u' operator we added
-//	return 3;
-//default:
-//	return 0;
-//}
