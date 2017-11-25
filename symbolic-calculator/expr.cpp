@@ -1,14 +1,10 @@
 #include <iostream>
 #include <algorithm>
-#include <stack>
 #include <queue>
 #include <stack>
-#include <thread>
-#include <vector>
 #include <sstream>
 
 #include "expr.h"
-#include "symbolicc++.h"]
 
 # define M_PI	3.14159265358979323846
 # define M_E	2.71828182845904523536
@@ -20,17 +16,6 @@ const char const Expr::PARENTHESES[2] = { '(', ')' };
 const char const Expr::OPERATORS[6] = { '+','-','*','/','^', 'u' }; 
 const char const Expr::NUMBERS[11] = { '0','1','2','3','4','5','6','7','8','9', '.'};
 
-Expr::Expr(std::string expr) {
-	this->expr = std::make_shared<Symbolic>(parse(expr));
-	std::cout << "df/dx      : " << this->expr->df(Symbolic("x")) << std::endl;
-	std::cout << "df/dy      : " << this->expr->df(Symbolic("y")) << std::endl;
-	std::cout << "int(f)dx   : " << this->expr->integrate(Symbolic("x")) << std::endl;
-	std::cout << "int(f)dy   : " << this->expr->integrate(Symbolic("y")) << std::endl;
-	std::cout << "int(f)dx|x=4     : " << this->expr->integrate(Symbolic("x"))[Symbolic("x")==4] << std::endl;
-	std::cout << "int(f)dx|x=4,y=2 : " << this->expr->integrate(Symbolic("x"))[Symbolic("x") == 4, Symbolic("y") == 2] << std::endl;
-	std::cout << std::endl;
-}
-
 Symbolic Expr::parse(std::string expr) {
 	std::cout << "Original   : " << expr << std::endl;
 	return to_symbolic(to_postfix(to_infix(expr)));
@@ -40,6 +25,13 @@ Symbolic Expr::parse(std::string expr) {
 double Expr::eval(std::string expr) {
 	return expr.find_first_not_of("0123456789.") == std::string::npos 
 		? std::stod(expr) : to_double(to_postfix(to_infix(expr)));
+}
+
+double Expr::eval(Symbolic s) {
+	std::stringstream ss;
+	ss << s;
+	std::string expr = ss.str();
+	return eval(expr);
 }
 
 // -------- String preparation -> in-fix form --------
