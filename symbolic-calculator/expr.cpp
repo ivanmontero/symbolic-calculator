@@ -8,9 +8,13 @@
 #include <sstream>
 
 #include "expr.h"
-#include "symbolicc++.h"
+#include "symbolicc++.h"]
+
+# define M_PI	3.14159265358979323846
+# define M_E	2.71828182845904523536
 
 const std::string const Expr::FUNCTIONS[4] = { "sin", "cos", "tan", "ln" };
+const std::string const Expr::SPECIAL_NUMBERS[2] = { "e", "pi" };
 const char const Expr::PARENTHESES[2] = { '(', ')' };
 // PRECEDENCE = index / 2
 const char const Expr::OPERATORS[6] = { '+','-','*','/','^', 'u' }; 
@@ -27,12 +31,12 @@ Expr::Expr(std::string expr) {
 	std::cout << std::endl;
 }
 
-// TODO: NEGATIVE NUMBERS
 Symbolic Expr::parse(std::string expr) {
 	std::cout << "Original   : " << expr << std::endl;
 	return to_symbolic(to_postfix(to_infix(expr)));
 }
 
+// doesn't quicky evaluate negative numbers
 double Expr::eval(std::string expr) {
 	return expr.find_first_not_of("0123456789.") == std::string::npos 
 		? std::stod(expr) : to_double(to_postfix(to_infix(expr)));
@@ -78,6 +82,7 @@ std::queue<std::string> Expr::to_infix(std::string str) {
 		else {
 			// var to avoid unnessessary checks.
 			bool found = false;
+			// TODO: Confine to one function
 			// Test if function
 			for (std::string f : FUNCTIONS) {
 				// Makes sure theres enough room left in str to test
@@ -86,6 +91,19 @@ std::queue<std::string> Expr::to_infix(std::string str) {
 					if (f.compare(std::string(it, it + f.size())) == 0) {
 						infix.push(f);
 						it += f.size() - 1;
+						found = true;
+						break;
+					}
+				}
+			}
+			// Test if special number
+			for (std::string n : SPECIAL_NUMBERS) {
+				// Makes sure theres enough room left in str to test
+				if (std::distance(it, str.end()) >= n.size()) {
+					// Check for equivalence
+					if (n.compare(std::string(it, it + n.size())) == 0) {
+						infix.push(n);
+						it += n.size() - 1;
 						found = true;
 						break;
 					}
@@ -127,15 +145,14 @@ std::queue<std::string> Expr::to_postfix(std::queue<std::string> infix) {
 		std::string s = infix.front();
 		infix.pop();
 		// Numbers pushed right into the stack
-		if (in_array(NUMBERS, s[0])) {
+		if (in_array(NUMBERS, s[0]) || in_array(SPECIAL_NUMBERS, s)) {
 			postfix.push(s);
 			// If function, pushed right into ops stack. Assumed that openning
 			// parenthesis will follow
 		}
 		else if (in_array(FUNCTIONS, s)) {
 			ops.push(s);
-		}
-		else if (in_array(OPERATORS, s[0])) {
+		} else if (in_array(OPERATORS, s[0])) {
 			// Should NEVER encounter a function when popping
 			while (!ops.empty()
 				&& ops.top()[0] != '('
@@ -192,8 +209,7 @@ Symbolic Expr::to_symbolic(std::queue<std::string> postfix) {
 		postfix.pop();
 		if (in_array(NUMBERS, s[0])) {
 			ss.push(Symbolic(std::stod(s)));
-		}
-		else if (in_array(OPERATORS, s[0])) {
+		} else if (in_array(OPERATORS, s[0])) {
 			if (s[0] == 'u') {
 				Symbolic t = ss.top();
 				ss.pop();
@@ -204,18 +220,21 @@ Symbolic Expr::to_symbolic(std::queue<std::string> postfix) {
 				l = ss.top();
 				ss.pop();
 				// '+','-','*','/','^'
-				if (s[0] == '+') ss.push(l + r);
-				else if (s[0] == '-') ss.push(l - r);
-				else if (s[0] == '*') ss.push(l * r);
-				else if (s[0] == '/') ss.push(l / r);
-				else if (s[0] == '^') ss.push(l ^ r);
+				if (s[0] == '+')		ss.push(l + r);
+				else if (s[0] == '-')	ss.push(l - r);
+				else if (s[0] == '*')	ss.push(l * r);
+				else if (s[0] == '/')	ss.push(l / r);
+				else if (s[0] == '^')	ss.push(l ^ r);
 			}
-		}
-		else if (in_array(FUNCTIONS, s)) {
+		} else if (in_array(SPECIAL_NUMBERS, s)) {
+			// "e", "pi"
+			if (s.compare("e") == 0)		ss.push(SymbolicConstant::e);
+			else if (s.compare("pi") == 0)	ss.push(SymbolicConstant::pi);
+		} else if (in_array(FUNCTIONS, s)) {
 			Symbolic n = ss.top();
 			ss.pop();
 			// "sin", "cos", "tan", "ln"
-			if (s.compare("sin") == 0)	ss.push(sin(n));
+			if (s.compare("sin") == 0)		ss.push(sin(n));
 			else if (s.compare("cos") == 0) ss.push(cos(n));
 			else if (s.compare("tan") == 0) ss.push(tan(n));
 			else if (s.compare("ln") == 0)  ss.push(ln(n));
@@ -258,8 +277,11 @@ double Expr::to_double(std::queue<std::string> postfix) {
 				else if (s[0] == '/') ss.push(l / r);
 				else if (s[0] == '^') ss.push(pow(l, r));
 			}
-		}
-		else if (in_array(FUNCTIONS, s)) {
+		} else if (in_array(SPECIAL_NUMBERS, s)) {
+			// "e", "pi"
+			if (s.compare("e") == 0)		ss.push(M_E);
+			else if (s.compare("pi") == 0)	ss.push(M_PI);
+		} else if (in_array(FUNCTIONS, s)) {
 			double n = ss.top();
 			ss.pop();
 			// "sin", "cos", "tan", "ln"
@@ -283,7 +305,7 @@ template<class T, class E> int Expr::index_of(T & arr, E & element) {
 }
 
 int main() { 
-	std::cout << Expr::eval("5-3^2");
+	std::cout << Expr::parse("sin(pi)");
 
 	std::cin.get();
 }
