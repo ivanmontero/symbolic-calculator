@@ -38,10 +38,10 @@ private:
 	static Symbolic to_symbolic(std::queue<std::string> postfix);
 	static double to_double(std::queue<std::string> postfix);
 	static double eval(std::string expr);
-	static double eval(Symbolic expr);
 	static std::string to_string(Symbolic expr);
 
 public:
+	static double eval(Symbolic expr);
 	static std::queue<std::string> to_infix(std::string str);
 	static std::queue<std::string> to_postfix(std::queue<std::string> infix);
 	template<class T, class E> static bool in_array(T & arr, E & element);
