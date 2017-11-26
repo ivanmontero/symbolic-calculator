@@ -85,7 +85,7 @@ double Expr::eval(Symbolic expr) {
 
 std::string Expr::to_string(Symbolic expr) {
 	std::stringstream ss;
-	ss << expr; // std::fixed
+	ss << std::fixed << expr;
 	return ss.str();
 }
 
