@@ -1,30 +1,3 @@
-.vs/Low-Poly Game/v15/Browse.VC.db
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/CAMERA-db574f68/CAMERA.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/CHUNK-d9b23638/CHUNK.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/CHUNK_MANAGER-925593d2/CHUNK_MANAGER.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/CHUNK_MANAGER-f49d94b7/CHUNK_MANAGER.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/FAST_NOISE-5b2c060a/FAST_NOISE.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/MAIN-e37c4ce4/MAIN.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/MESH-2e4c432c/MESH.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/MESH-d88ca591/MESH.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/MOUSE-e798aa88/MOUSE.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/PLAYER-e490de0c/PLAYER.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/TIMER-5e5e400/TIMER.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/RENDERER-e595b516/RENDERER.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/WORLD-7d202967/WORLD.ipch
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/TIMER-de00165/TIMER.ipch
-Low-Poly Game/Debug/Low-Poly Game.tlog/CL.command.1.tlog
-.vs/Low-Poly Game/v15/ipch/AutoPCH/LOW-POLY GAME-de422ee5/WINDOW-69e46757/WINDOW.ipch
-Low-Poly Game/Debug/Low-Poly Game.tlog/CL.read.1.tlog
-Low-Poly Game/Debug/Low-Poly Game.tlog/CL.write.1.tlog
-Low-Poly Game/Debug/Low-Poly Game.tlog/link.read.1.tlog
-Low-Poly Game/Debug/Low-Poly Game.tlog/Low-Poly Game.lastbuildstate
-Low-Poly Game/Debug/Low-Poly Game.tlog/link.write.1.tlog
-Low-Poly Game/Debug/Low-Poly Game.tlog/link.command.1.tlog
-Low-Poly Game/Debug/chunk_manager.obj.enc
-Low-Poly Game/Debug/vc141.idb
-.vs/Low-Poly Game/v15/Browse.VC.opendb
-
 **/[Dd]ebug/
 [Dd]ebug/
 
