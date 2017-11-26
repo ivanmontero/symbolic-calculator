@@ -24,6 +24,8 @@ std::shared_ptr<Symbolic> Expr::parse(std::string expr) {
 	return std::make_shared<Symbolic>(to_symbolic(to_postfix(to_infix(expr))));
 }
 
+Expr::Expr() { this->expr = std::make_shared<Symbolic>(); }
+
 Expr::Expr(std::string expr) { set(expr); }
 
 Expr::Expr(Expr& o) { this->expr = o.expr;  }

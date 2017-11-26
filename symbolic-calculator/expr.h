@@ -14,6 +14,7 @@ private:
 	Expr(Symbolic expr);
 
 public:
+	Expr();
 	Expr(Expr& o);
 	Expr(std::string expr);
 	void set(std::string expr);
